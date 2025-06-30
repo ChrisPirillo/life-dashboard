@@ -1,0 +1,2353 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Life Dashboard - Visualize Your Life's Journey in Stats</title>
+        <meta
+            name="description"
+            content="Discover fascinating statistics about your life based on your birth date. Explore metrics on physiology, daily habits, societal impact, technology usage, environmental footprint, and cosmic journey. Your Life Dashboard provides a unique perspective on your existence."
+        />
+        <meta
+            name="keywords"
+            content="Life Dashboard, life stats, personal statistics, human body facts, daily habits, environmental impact, technology usage, cosmic journey, life visualization, birth date calculator, Chris Pirillo"
+        />
+        <link
+            rel="canonical"
+            href="https://pirillo.com/arcade/life-dashboard.html"
+        />
+
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta
+            property="og:url"
+            content="https://pirillo.com/arcade/life-dashboard.html"
+        />
+        <meta
+            property="og:title"
+            content="Life Dashboard - Visualize Your Life's Journey in Stats"
+        />
+        <meta
+            property="og:description"
+            content="Discover fascinating statistics about your life based on your birth date. Explore metrics on physiology, daily habits, societal impact, technology usage, environmental footprint, and cosmic journey."
+        />
+        <meta
+            property="og:image"
+            content="https://pirillo.com/arcade/images/life-dashboard.png"
+        />
+
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta
+            property="twitter:url"
+            content="https://pirillo.com/arcade/life-dashboard.html"
+        />
+        <meta
+            property="twitter:title"
+            content="Life Dashboard - Visualize Your Life's Journey in Stats"
+        />
+        <meta
+            property="twitter:description"
+            content="Discover fascinating statistics about your life based on your birth date. Explore metrics on physiology, daily habits, societal impact, technology usage, environmental footprint, and cosmic journey."
+        />
+        <meta
+            property="twitter:image"
+            content="https://pirillo.com/arcade/images/life-dashboard.png"
+        />
+        <meta name="twitter:creator" content="@ChrisPirillo" />
+        <meta name="author" content="Chris Pirillo" />
+
+        <!-- Preload critical fonts for LCP improvement -->
+        <link
+            rel="preload"
+            href="https://fonts.gstatic.com/s/lexend/v18/wlptgflvTvQvFdqYULz_FSg-wQ.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link
+            rel="preload"
+            href="https://fonts.gstatic.com/s/inter/v13/UcCO4qJgHb5J6gdADxR2zE_P_EeHsWA.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+
+        <!-- Preconnect to third-party domains for faster resource loading -->
+        <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+        <link rel="preconnect" href="https://unpkg.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+
+        <!-- Tailwind CSS - Loaded synchronously as it's critical for initial render -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Phosphor Icons - Loaded synchronously as it's critical for initial render -->
+        <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+        <!-- Google Fonts - Lexend and Inter -->
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Inter:wght@400&display=swap&display=swap"
+            media="print"
+            onload="this.media='all'"
+        />
+        <noscript>
+            <link
+                rel="stylesheet"
+                href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Inter:wght@400&display=swap"
+            />
+        </noscript>
+
+        <style>
+            /* Critical CSS for initial layout to prevent CLS */
+            html,
+            body {
+                height: 100%; /* Ensure html and body take full height */
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: "Lexend", sans-serif;
+                background-color: #f3f4f6; /* gray-100 */
+                overflow-x: hidden; /* Prevents horizontal scrolling */
+                overflow-y: auto; /* Allow vertical scrolling for content */
+            }
+            /* This new class handles the centering for the initial view */
+            .body-centered {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+            }
+            /* app-container now acts as a simple wrapper */
+            #app-container {
+                width: 100%;
+                max-width: 100%; /* Ensure it doesn't exceed viewport width */
+            }
+            /* Views use opacity for transitions */
+            #dateInputView,
+            #visualizationView {
+                transition: opacity 0.4s ease-in-out;
+                backface-visibility: hidden;
+                width: 100%; /* Take full width of parent */
+            }
+            /* Specific styles for dateInputView to ensure it's centered */
+            #dateInputView {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh; /* Ensures it takes full screen height for centering card */
+            }
+            /* visualizationView will behave as a normal block element */
+            #visualizationView {
+                display: none; /* Initially hidden */
+            }
+
+            .stat-card {
+                background-color: white;
+                padding: 0.75rem;
+                border-radius: 0.75rem;
+                border: 1px solid #e5e7eb;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease;
+                position: relative;
+                min-height: 100px; /* Explicit height to prevent CLS */
+            }
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow:
+                    0 10px 15px -3px rgba(0, 0, 0, 0.05),
+                    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .stat-value {
+                font-weight: 600;
+                font-size: 1.125rem;
+                line-height: 1.6rem;
+                color: #111827;
+                word-wrap: break-word;
+            }
+            .stat-label {
+                font-size: 0.8rem;
+                color: #4b5563;
+                margin-top: 0.25rem;
+            }
+            .main-icon {
+                font-size: 1.75rem;
+                position: absolute;
+                bottom: 0.5rem;
+                right: 0.75rem;
+                opacity: 0.15;
+            }
+            .info-icon-container {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            .info-icon {
+                font-size: 1rem;
+                color: #9ca3af;
+                cursor: pointer;
+            }
+            .tooltip {
+                visibility: hidden;
+                width: 220px;
+                background-color: #1f2937;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 8px;
+                position: absolute;
+                z-index: 10;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+                font-size: 0.75rem;
+                line-height: 1.2;
+                font-family: "Inter", sans-serif;
+                pointer-events: none;
+            }
+            .info-icon-container:hover .tooltip {
+                visibility: visible;
+                opacity: 1;
+            }
+            /* Custom styles for the new select dropdowns */
+            .date-select {
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 1em;
+                padding-right: 2.5rem;
+            }
+        </style>
+
+        <!-- JSON-LD Structured Data -->
+        <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "name": "Life Dashboard - Visualize Your Life's Journey in Stats",
+                "description": "Discover fascinating statistics about your life based on your birth date. Explore metrics on physiology, daily habits, societal impact, technology usage, environmental footprint, and cosmic journey.",
+                "url": "https://pirillo.com/arcade/life-dashboard.html",
+                "image": "https://pirillo.com/arcade/images/life-dashboard.png",
+                "author": {
+                    "@type": "Person",
+                    "name": "Chris Pirillo",
+                    "url": "https://pirillo.com/",
+                    "sameAs": ["https://twitter.com/ChrisPirillo"]
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "Pirillo.com",
+                    "url": "https://pirillo.com/",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": "https://pirillo.com/favicon.ico"
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="text-gray-700 body-centered">
+        <!-- Main content area using semantic tags -->
+        <main id="app-container" class="w-full max-w-screen-2xl mx-auto">
+            <!-- Step 1: Date Input View -->
+            <section id="dateInputView" style="opacity: 1">
+                <div
+                    class="max-w-lg w-full bg-white px-6 sm:px-8 pt-12 pb-4 rounded-2xl shadow-sm text-center flex flex-col items-center justify-center mx-4"
+                >
+                    <h1
+                        class="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+                    >
+                        Your Life Dashboard
+                    </h1>
+                    <p class="text-gray-600 mb-8 text-lg">
+                        Start with letting me know your birth date.
+                    </p>
+                    <!-- NEW: Date dropdowns -->
+                    <div class="w-full flex flex-col items-center">
+                        <div
+                            class="flex flex-col sm:flex-row gap-2 justify-center w-full max-w-md"
+                        >
+                            <select
+                                id="birthMonth"
+                                class="p-3 border border-gray-300 rounded-lg w-full sm:w-1/2 text-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent date-select"
+                            >
+                                <!-- Months will be populated by JS -->
+                            </select>
+                            <select
+                                id="birthDay"
+                                class="p-3 border border-gray-300 rounded-lg w-full sm:w-1/4 text-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent date-select"
+                            >
+                                <!-- Days will be populated by JS -->
+                            </select>
+                            <select
+                                id="birthYear"
+                                class="p-3 border border-gray-300 rounded-lg w-full sm:w-1/4 text-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent date-select"
+                            >
+                                <!-- Years will be populated by JS -->
+                            </select>
+                        </div>
+                        <button
+                            id="visualizeBtn"
+                            class="bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors text-lg mt-4 w-full max-w-md"
+                        >
+                            Visualize
+                        </button>
+                    </div>
+                    <p id="error-message" class="text-red-500 mt-4 h-6"></p>
+                </div>
+            </section>
+
+            <!-- Step 2: Visualization View -->
+            <section id="visualizationView" style="opacity: 0; display: none">
+                <div class="space-y-6 p-4">
+                    <!-- Added p-4 for general padding on dashboard view -->
+                    <div>
+                        <!-- NEW: Header with reset and copy buttons -->
+                        <div class="flex justify-between items-center mb-4">
+                            <button
+                                id="resetBtn"
+                                class="text-gray-600 hover:text-gray-900 text-sm"
+                            >
+                                &larr; Start over
+                            </button>
+                            <button
+                                id="copyBtn"
+                                class="bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors text-sm flex items-center gap-2"
+                            >
+                                <i class="ph ph-copy" aria-hidden="true"></i>
+                                <span id="copyBtnText">Copy Stats</span>
+                            </button>
+                        </div>
+                        <h2
+                            class="text-3xl font-bold text-gray-900 whitespace-nowrap text-center"
+                        >
+                            Your Life Dashboard
+                        </h2>
+                        <p
+                            class="text-gray-600 mt-1 whitespace-nowrap text-center"
+                        >
+                            Based on being born
+                            <span
+                                id="birthDateDisplay"
+                                class="font-semibold text-gray-800"
+                            ></span
+                            >.
+                        </p>
+                    </div>
+
+                    <div
+                        id="stats-dashboard"
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3"
+                    >
+                        <!-- All 100+ stat cards will be populated here by JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Google Analytics (async to prevent render blocking) -->
+        <script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-1CQ4D3VQ3L"
+        ></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+            gtag("js", new Date());
+            gtag("config", "G-1CQ4D3VQ3L");
+        </script>
+
+        <!-- Main application JavaScript (defer to prevent render blocking) -->
+        <script defer>
+            // --- DOM Elements ---
+            const dateInputView = document.getElementById("dateInputView");
+            const visualizationView =
+                document.getElementById("visualizationView");
+            // NEW: Select elements for date
+            const birthMonthInput = document.getElementById("birthMonth");
+            const birthDayInput = document.getElementById("birthDay");
+            const birthYearInput = document.getElementById("birthYear");
+            const visualizeBtn = document.getElementById("visualizeBtn");
+            const resetBtn = document.getElementById("resetBtn");
+            const errorMessage = document.getElementById("error-message");
+            // NEW: Copy button elements
+            const copyBtn = document.getElementById("copyBtn");
+            const copyBtnText = document.getElementById("copyBtnText");
+
+            // --- Constants ---
+            const TOTAL_YEARS = 90;
+            const WEEKS_IN_YEAR = 52;
+
+            const STATS_CONFIG = {
+                AVG_HEART_RATE_BPM: 72,
+                AVG_BREATHS_PER_MINUTE: 16,
+                AVG_BLINKS_PER_MINUTE: 17,
+                BLOOD_PUMPED_LITERS_PER_MINUTE: 5,
+                HAIR_GROWN_CM_PER_MONTH: 1.25,
+                SKIN_CELLS_SHED_PER_HOUR: 35000,
+                RED_BLOOD_CELLS_MADE_PER_SECOND: 2.4e6,
+                TASTE_BUDS_REPLACED_DAYS: 10,
+                SKELETON_REPLACE_YEARS: 10,
+                NERVE_IMPULSE_SPEED_KPH: 400,
+                SALIVA_LITERS_PER_DAY: 1.5,
+                BMR_CALORIES_PER_DAY: 1600,
+                AVG_SLEEP_HOURS_PER_DAY: 7.5,
+                AVG_DREAMS_PER_NIGHT: 4,
+                AVG_WALK_KM_PER_DAY: 4,
+                AVG_WATER_LITERS_PER_DAY: 2,
+                AVG_FOOD_KG_PER_DAY: 1.8,
+                AVG_LAUGHS_PER_DAY: 15,
+                AVG_WORDS_SPOKEN_PER_DAY: 16000,
+                TEARS_ML_PER_CRY: 0.75,
+                SNEEZES_PER_DAY: 1,
+                AVG_DECISIONS_PER_DAY: 35000,
+                AVG_THOUGHTS_PER_DAY: 6200,
+                AVG_TIME_EATING_MINS_PER_DAY: 72,
+                COFFEE_START_AGE: 16,
+                AVG_COFFEE_CUPS_PER_DAY: 1.5,
+                DRIVING_START_AGE: 16,
+                AVG_DRIVING_KM_PER_YEAR: 15000,
+                WORK_START_AGE: 18,
+                AVG_PEOPLE_MET_LIFETIME: 80000,
+                AVG_TAX_RATE_LIFETIME_US: 0.3,
+                AVG_INCOME_PER_YEAR_US: 60000,
+                AVG_WORK_HOURS_PER_WEEK: 38,
+                AVG_HANDSHAKES_LIFETIME: 15000,
+                NEW_WORDS_PER_YEAR: 1000,
+                PATENTS_FILED_PER_YEAR_GLOBAL: 3.4e6,
+                GLOBAL_GDP_GROWTH_RATE: 0.03,
+                WORLD_POP_AT_1950: 2.5e9,
+                WORLD_POP_NOW: 8.1e9,
+                GLOBAL_LITERACY_RATE_INCREASE_PER_YEAR: 0.5,
+                TECH_START_AGE: 10,
+                HOURS_ONLINE_PER_DAY: 6.5,
+                EMAILS_PER_WORKDAY: 120,
+                MUSIC_HOURS_PER_DAY: 2.5,
+                TV_HOURS_PER_DAY: 2.8,
+                DATA_GB_PER_MONTH_MOBILE: 15,
+                GOOGLE_SEARCHES_PER_DAY: 5,
+                LAUNCH_YEAR_INTERNET: 1991,
+                LAUNCH_YEAR_GOOGLE: 1998,
+                LAUNCH_YEAR_WIKIPEDIA: 2001,
+                LAUNCH_YEAR_YOUTUBE: 2005,
+                LAUNCH_YEAR_SPOTIFY: 2008,
+                LAUNCH_YEAR_SMARTPHONE: 2007,
+                YOUTUBE_HOURS_UPLOADED_PER_MINUTE: 500,
+                SPOTIFY_SONGS_ADDED_PER_DAY: 100000,
+                WIKIPEDIA_ARTICLES_CREATED_PER_DAY: 600,
+                PHOTOS_TAKEN_PER_DAY_POST_SMARTPHONE: 20,
+                MOORE_LAW_YEARS: 2,
+                CO2_TONS_PER_YEAR_US: 16,
+                TREES_FOR_PAPER_PER_YEAR_US: 7,
+                WASTE_KG_PER_DAY_US: 2.2,
+                WATER_FOOTPRINT_LITERS_PER_DAY_US: 7500,
+                PLASTIC_BOTTLES_PER_YEAR_US: 167,
+                SEA_LEVEL_RISE_MM_PER_YEAR: 3.6,
+                GLACIER_MASS_LOST_GT_PER_YEAR: 270,
+                EARTHQUAKES_PER_YEAR_MAG_5_PLUS: 1500,
+                DEFORESTATION_HECTARES_PER_YEAR: 10e6,
+                SPECIES_EXTINCTION_RATE_VS_BASELINE: 1000,
+                EARTH_ORBITAL_SPEED_KPS: 29.78,
+                SOLAR_SYSTEM_SPEED_KPH: 828000,
+                TECTONIC_SHIFT_CM_PER_YEAR: 2.5,
+                AGE_OF_UNIVERSE_YEARS: 13.8e9,
+                SUN_AGE_YEARS: 4.6e9,
+                DISTANCE_TO_MOON_KM: 384400,
+                MILKY_WAY_TRAVEL_SPEED_KPS: 600,
+                STARS_BORN_PER_YEAR_GALAXY: 3,
+                EXOPLANETS_DISCOVERED_SINCE_1992: 5500,
+                LAUNCH_YEAR_EXOPLANET: 1992,
+                VOYAGER_1_DISTANCE_KM: 24e9,
+                LAUNCH_YEAR_VOYAGER: 1977,
+                BOOKS_READ_PER_YEAR: 12,
+                MOVIES_WATCHED_PER_YEAR: 60,
+                WORLD_CUPS_PER_4_YEARS: 1,
+                AVG_KIDNEY_FILTER_LITERS_PER_DAY: 180,
+                AVG_LIVER_PROCESS_LITERS_PER_DAY: 1.4,
+                AVG_BRAIN_WEIGHT_KG: 1.4,
+                AVG_NEURONS_IN_BRAIN: 86e9,
+                AVG_HAIR_FOLLICLES: 100000,
+                AVG_SWEAT_LITERS_PER_DAY: 1,
+                AVG_STEPS_PER_DAY: 5000,
+                AVG_SCREEN_TIME_HOURS_PER_DAY: 7,
+                AVG_SOCIAL_MEDIA_HOURS_PER_DAY: 2.5,
+                AVG_NEWS_HOURS_PER_DAY: 1,
+                AVG_ONLINE_PURCHASES_PER_YEAR: 20,
+                AVG_APPS_DOWNLOADED_PER_YEAR: 10,
+                AVG_TEXT_MESSAGES_PER_DAY: 50,
+                AVG_EMAILS_SENT_PER_DAY: 30,
+                AVG_VIDEO_CALL_HOURS_PER_WEEK: 3,
+                GLOBAL_INTERNET_USERS_GROWTH_RATE: 0.05,
+                GLOBAL_SMARTPHONE_USERS_GROWTH_RATE: 0.08,
+                GLOBAL_DATA_CREATED_ZB_PER_YEAR: 97,
+                GLOBAL_RENEWABLE_ENERGY_GROWTH_RATE: 0.08,
+                GLOBAL_PLASTIC_PRODUCTION_TONS_PER_YEAR: 380e6,
+                GLOBAL_TEMPERATURE_RISE_CELSIUS_PER_DECADE: 0.2,
+                GLOBAL_OCEAN_ACIDIFICATION_PH_CHANGE_PER_YEAR: 0.002,
+                GLOBAL_FOREST_AREA_PERCENT_CHANGE_PER_YEAR: -0.001,
+                GLOBAL_BIODIVERSITY_LOSS_PERCENT_PER_YEAR: 0.0001,
+                GLOBAL_CO2_CONCENTRATION_PPM_PER_YEAR: 2.5,
+                GLOBAL_ICE_SHEET_LOSS_GT_PER_YEAR: 400,
+                GLOBAL_CORAL_REEF_LOSS_PERCENT_PER_YEAR: 0.01,
+                GLOBAL_AIR_POLLUTION_DEATHS_PER_YEAR: 7e6,
+                GLOBAL_WATER_SCARCITY_PEOPLE_AFFECTED_BILLION: 2.2,
+                AVG_FLIGHT_HOURS_PER_YEAR: 50,
+                AVG_VACATION_DAYS_PER_YEAR: 15,
+                AVG_GIFTS_RECEIVED_PER_YEAR: 10,
+                AVG_PETS_OWNED_LIFETIME: 2,
+                AVG_HOUSE_MOVES_LIFETIME: 5,
+                AVG_HAIRCUTS_PER_YEAR: 6,
+                AVG_NAILS_GROWN_METERS: 0.003, // meters per year
+                AVG_KISSES_PER_DAY: 5,
+                AVG_HUGS_PER_DAY: 8,
+                AVG_COMPLIMENTS_PER_DAY: 3,
+                AVG_ARGUMENTS_PER_DAY: 0.5,
+                AVG_BOOKS_WRITTEN_LIFETIME: 0.01,
+                AVG_SONGS_WRITTEN_LIFETIME: 0.1,
+                AVG_PAINTINGS_CREATED_LIFETIME: 0.05,
+                AVG_VOLUNTEER_HOURS_PER_YEAR: 20,
+                AVG_CHARITY_DONATIONS_USD_PER_YEAR: 500,
+                AVG_HOME_COOKED_MEALS_PER_DAY: 1,
+                AVG_RESTAURANT_MEALS_PER_WEEK: 2,
+                AVG_FAST_FOOD_MEALS_PER_MONTH: 4,
+                AVG_TIME_COOKING_HOURS_PER_DAY: 1.5,
+                AVG_TIME_CLEANING_HOURS_PER_DAY: 1,
+                AVG_TIME_COMMUTING_HOURS_PER_DAY: 1,
+                AVG_TIME_EXERCISING_HOURS_PER_DAY: 0.5,
+                AVG_TIME_READING_HOURS_PER_DAY: 1,
+                AVG_TIME_GAMING_HOURS_PER_DAY: 1.5,
+                AVG_TIME_SOCIALIZING_HOURS_PER_DAY: 2,
+                AVG_TIME_LEARNING_HOURS_PER_DAY: 0.75,
+                AVG_TIME_MEDITATING_MINS_PER_DAY: 10,
+                AVG_TIME_PLANNING_MINS_PER_DAY: 15,
+                AVG_TIME_GROCERY_SHOPPING_HOURS_PER_WEEK: 2,
+                AVG_TIME_LAUNDRY_HOURS_PER_WEEK: 3,
+                AVG_TIME_BATHING_MINS_PER_DAY: 20,
+                AVG_TIME_DRESSING_MINS_PER_DAY: 15,
+                AVG_TIME_BRUSHING_TEETH_MINS_PER_DAY: 4,
+                AVG_TIME_SHAVING_MINS_PER_DAY: 5,
+                AVG_TIME_GROOMING_MINS_PER_DAY: 30,
+            };
+
+            // --- NEW: Function to populate date dropdowns ---
+            function populateDateInputs() {
+                // Populate months
+                const months = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                ];
+                months.forEach((month, index) => {
+                    const option = new Option(month, index + 1);
+                    birthMonthInput.add(option);
+                });
+
+                // Populate days
+                for (let i = 1; i <= 31; i++) {
+                    const option = new Option(i, i);
+                    birthDayInput.add(option);
+                }
+
+                // Populate years
+                const currentYear = new Date().getFullYear();
+                const startYear = currentYear - 120; // Go back 120 years
+                for (let i = currentYear; i >= startYear; i--) {
+                    const option = new Option(i, i);
+                    birthYearInput.add(option);
+                }
+            }
+
+            // --- UPDATED: View Switching Logic ---
+            function switchView(viewToShow, viewToHide) {
+                // Start fading out the current view
+                viewToHide.style.opacity = "0";
+
+                // After the fade-out transition is complete...
+                setTimeout(() => {
+                    // Hide the old view completely
+                    viewToHide.style.display = "none";
+
+                    // Toggle the body's centering state. This is the key to the smooth transition.
+                    // Layout changes now happen *after* the old view is hidden, preventing the "jump".
+                    if (viewToShow === visualizationView) {
+                        document.body.classList.remove("body-centered");
+                    } else {
+                        document.body.classList.add("body-centered");
+                    }
+
+                    // Set the display property for the new view we are showing
+                    if (viewToShow === dateInputView) {
+                        // dateInputView itself is a flex container to center its content
+                        viewToShow.style.display = "flex";
+                    } else {
+                        viewToShow.style.display = "block";
+                    }
+
+                    // Force a browser reflow before changing opacity to ensure the fade-in transition runs
+                    void viewToShow.offsetWidth;
+
+                    // Start fading in the new view
+                    viewToShow.style.opacity = "1";
+                }, 400); // This duration must match the CSS transition duration (0.4s)
+            }
+
+            // --- Main Calculation Engine ---
+            function calculateStats(birthDate) {
+                const now = new Date();
+                const C = STATS_CONFIG;
+
+                // Ensure birthDate is treated as UTC for calculations
+                const birthDateUTC = new Date(
+                    Date.UTC(
+                        birthDate.getFullYear(),
+                        birthDate.getMonth(),
+                        birthDate.getDate(),
+                    ),
+                );
+
+                const diffDays =
+                    (now.getTime() - birthDateUTC.getTime()) /
+                    (1000 * 60 * 60 * 24);
+                const ageInYears = diffDays / 365.25;
+
+                const yearsSince = (startAge) =>
+                    Math.max(0, ageInYears - startAge);
+                const yearsSinceYear = (
+                    startYear,
+                    startAge = C.TECH_START_AGE,
+                ) => {
+                    const effectiveStartYear = Math.max(
+                        birthDateUTC.getUTCFullYear() + startAge,
+                        startYear,
+                    );
+                    return Math.max(
+                        0,
+                        now.getUTCFullYear() - effectiveStartYear,
+                    );
+                };
+
+                const workingYears = yearsSince(C.WORK_START_AGE);
+                const coffeeYears = yearsSince(C.COFFEE_START_AGE);
+                const drivingYears = yearsSince(C.DRIVING_START_AGE);
+                const internetYears = yearsSinceYear(C.LAUNCH_YEAR_INTERNET);
+                const googleYears = yearsSinceYear(C.LAUNCH_YEAR_GOOGLE);
+                const wikipediaYears = yearsSinceYear(C.LAUNCH_YEAR_WIKIPEDIA);
+                const youtubeYears = yearsSinceYear(C.LAUNCH_YEAR_YOUTUBE);
+                const spotifyYears = yearsSinceYear(C.LAUNCH_YEAR_SPOTIFY);
+                const smartphoneYears = yearsSinceYear(
+                    C.LAUNCH_YEAR_SMARTPHONE,
+                );
+                const exoplanetYears = yearsSinceYear(
+                    C.LAUNCH_YEAR_EXOPLANET,
+                    0,
+                );
+
+                const yearsLeft = TOTAL_YEARS - ageInYears;
+                const daysLeft = yearsLeft > 0 ? yearsLeft * 365.25 : 0;
+
+                const stats = {
+                    weeksLived: Math.floor(diffDays / 7),
+                    daysLived: Math.floor(diffDays),
+                    heartbeats: Math.floor(
+                        diffDays * 24 * 60 * C.AVG_HEART_RATE_BPM,
+                    ),
+                    breaths: Math.floor(
+                        diffDays * 24 * 60 * C.AVG_BREATHS_PER_MINUTE,
+                    ),
+                    sleepHours: Math.floor(
+                        diffDays * C.AVG_SLEEP_HOURS_PER_DAY,
+                    ),
+                    blinks: Math.floor(
+                        diffDays * 24 * 60 * C.AVG_BLINKS_PER_MINUTE,
+                    ),
+                    dreams: Math.floor(diffDays * C.AVG_DREAMS_PER_NIGHT),
+                    kmWalked: Math.floor(diffDays * C.AVG_WALK_KM_PER_DAY),
+                    waterLiters: Math.floor(
+                        diffDays * C.AVG_WATER_LITERS_PER_DAY,
+                    ),
+                    foodKg: Math.floor(diffDays * C.AVG_FOOD_KG_PER_DAY),
+                    coffeeCups: Math.floor(
+                        coffeeYears * 365 * C.AVG_COFFEE_CUPS_PER_DAY,
+                    ),
+                    laughs: Math.floor(diffDays * C.AVG_LAUGHS_PER_DAY),
+                    wordsSpoken: Math.floor(
+                        diffDays * C.AVG_WORDS_SPOKEN_PER_DAY,
+                    ),
+                    hairGrownMeters:
+                        (ageInYears * 12 * C.HAIR_GROWN_CM_PER_MONTH) / 100,
+                    skinCellsShed: Math.floor(
+                        diffDays * 24 * C.SKIN_CELLS_SHED_PER_HOUR,
+                    ),
+                    bloodPumpedLiters: Math.floor(
+                        diffDays * 24 * 60 * C.BLOOD_PUMPED_LITERS_PER_MINUTE,
+                    ),
+                    hoursOnline: Math.floor(
+                        internetYears * 365 * C.HOURS_ONLINE_PER_DAY,
+                    ),
+                    emailsExchanged: Math.floor(
+                        workingYears * 252 * C.EMAILS_PER_WORKDAY,
+                    ),
+                    photosTaken: Math.floor(
+                        smartphoneYears *
+                            365 *
+                            C.PHOTOS_TAKEN_PER_DAY_POST_SMARTPHONE,
+                    ),
+                    co2FootprintTons: ageInYears * C.CO2_TONS_PER_YEAR_US,
+                    paperTrees: ageInYears * C.TREES_FOR_PAPER_PER_YEAR_US,
+                    wasteKg: Math.floor(diffDays * C.WASTE_KG_PER_DAY_US),
+                    musicHours: Math.floor(
+                        spotifyYears * 365 * C.MUSIC_HOURS_PER_DAY,
+                    ),
+                    tvHours: Math.floor(diffDays * C.TV_HOURS_PER_DAY),
+                    tearsMl: Math.floor(ageInYears * 24 * C.TEARS_ML_PER_CRY),
+                    sneezes: Math.floor(diffDays * C.SNEEZES_PER_DAY),
+                    dataGb: Math.floor(
+                        smartphoneYears * 12 * C.DATA_GB_PER_MONTH_MOBILE,
+                    ),
+                    earthTravelKm: Math.floor(
+                        diffDays * 24 * 60 * 60 * C.EARTH_ORBITAL_SPEED_KPS,
+                    ),
+                    solarSystemTravelKm: Math.floor(
+                        diffDays * 24 * C.SOLAR_SYSTEM_SPEED_KPH,
+                    ),
+                    tectonicShiftCm: ageInYears * C.TECTONIC_SHIFT_CM_PER_YEAR,
+                    leapYears:
+                        Math.floor(ageInYears / 4) -
+                        Math.floor(ageInYears / 100) +
+                        Math.floor(ageInYears / 400),
+                    olympics: Math.floor(ageInYears / 2),
+                    presidentialElections: Math.floor(ageInYears / 4),
+                    booksToRead: Math.floor(
+                        yearsLeft > 0 ? yearsLeft * C.BOOKS_READ_PER_YEAR : 0,
+                    ),
+                    sunrisesLeft: Math.floor(daysLeft),
+                    moviesWatched: Math.floor(
+                        ageInYears * C.MOVIES_WATCHED_PER_YEAR,
+                    ),
+                    googleSearches: Math.floor(
+                        googleYears * 365 * C.GOOGLE_SEARCHES_PER_DAY,
+                    ),
+                    incomeEarned: Math.floor(
+                        workingYears * C.AVG_INCOME_PER_YEAR_US,
+                    ),
+                    taxesPaid: Math.floor(
+                        workingYears *
+                            C.AVG_INCOME_PER_YEAR_US *
+                            C.AVG_TAX_RATE_LIFETIME_US,
+                    ),
+                    workHours: Math.floor(
+                        workingYears * 50 * C.AVG_WORK_HOURS_PER_WEEK,
+                    ),
+                    handshakes: Math.floor(
+                        (ageInYears / 80) * C.AVG_HANDSHAKES_LIFETIME,
+                    ),
+                    waterFootprintLiters: Math.floor(
+                        diffDays * C.WATER_FOOTPRINT_LITERS_PER_DAY_US,
+                    ),
+                    plasticBottlesUsed: Math.floor(
+                        ageInYears * C.PLASTIC_BOTTLES_PER_YEAR_US,
+                    ),
+                    thoughts: Math.floor(diffDays * C.AVG_THOUGHTS_PER_DAY),
+                    decisions: Math.floor(diffDays * C.AVG_DECISIONS_PER_DAY),
+                    timeEatingHours: Math.floor(
+                        (diffDays * C.AVG_TIME_EATING_MINS_PER_DAY) / 60,
+                    ),
+                    redBloodCells: Math.floor(
+                        diffDays *
+                            24 *
+                            3600 *
+                            C.RED_BLOOD_CELLS_MADE_PER_SECOND,
+                    ),
+                    tasteBudsReplaced: Math.floor(
+                        diffDays / C.TASTE_BUDS_REPLACED_DAYS,
+                    ),
+                    ageAsPercentOfSun: (ageInYears / C.SUN_AGE_YEARS) * 100,
+                    kmWalkedToMoon:
+                        (diffDays * C.AVG_WALK_KM_PER_DAY) /
+                        C.DISTANCE_TO_MOON_KM,
+                    skeletonReplacements: ageInYears / C.SKELETON_REPLACE_YEARS,
+                    nerveImpulseKm:
+                        diffDays * 24 * 3600 * C.NERVE_IMPULSE_SPEED_KPH,
+                    salivaLiters: diffDays * C.SALIVA_LITERS_PER_DAY,
+                    caloriesBurnedRest: diffDays * C.BMR_CALORIES_PER_DAY,
+                    wordsAddedToDict: ageInYears * C.NEW_WORDS_PER_YEAR,
+                    patentsFiledGlobal:
+                        ageInYears * C.PATENTS_FILED_PER_YEAR_GLOBAL,
+                    youtubeHoursUploaded:
+                        youtubeYears *
+                        365 *
+                        24 *
+                        60 *
+                        C.YOUTUBE_HOURS_UPLOADED_PER_MINUTE,
+                    spotifySongsAdded:
+                        spotifyYears * 365 * C.SPOTIFY_SONGS_ADDED_PER_DAY,
+                    wikipediaArticlesCreated:
+                        wikipediaYears *
+                        365 *
+                        C.WIKIPEDIA_ARTICLES_CREATED_PER_DAY,
+                    seaLevelRiseMm: ageInYears * C.SEA_LEVEL_RISE_MM_PER_YEAR,
+                    glacierMassLostGt:
+                        ageInYears * C.GLACIER_MASS_LOST_GT_PER_YEAR,
+                    earthquakesMag5:
+                        ageInYears * C.EARTHQUAKES_PER_YEAR_MAG_5_PLUS,
+                    milkyWayTravelKm:
+                        diffDays * 24 * 3600 * C.MILKY_WAY_TRAVEL_SPEED_KPS,
+                    starsBornGalaxy: ageInYears * C.STARS_BORN_PER_YEAR_GALAXY,
+                    exoplanetsDiscovered:
+                        exoplanetYears > 0
+                            ? Math.floor(
+                                  (exoplanetYears /
+                                      (now.getFullYear() -
+                                          C.LAUNCH_YEAR_EXOPLANET)) *
+                                      C.EXOPLANETS_DISCOVERED_SINCE_1992,
+                              )
+                            : 0,
+                    weekendsLeft: Math.floor(yearsLeft * 52),
+                    kmDriven: drivingYears * C.AVG_DRIVING_KM_PER_YEAR,
+                    worldPopulationGrowth:
+                        C.WORLD_POP_NOW -
+                        (C.WORLD_POP_AT_1950 +
+                            ((C.WORLD_POP_NOW - C.WORLD_POP_AT_1950) /
+                                (now.getFullYear() - 1950)) *
+                                (birthDateUTC.getUTCFullYear() - 1950)),
+                    mooreLawCycles: ageInYears / C.MOORE_LAW_YEARS,
+                    voyagerDistPercent:
+                        (((now.getFullYear() - C.LAUNCH_YEAR_VOYAGER) *
+                            3.5 *
+                            1.60934) /
+                            (C.VOYAGER_1_DISTANCE_KM / 1e9)) *
+                        100,
+                    deforestationHectares:
+                        ageInYears * C.DEFORESTATION_HECTARES_PER_YEAR,
+                    literacyIncrease:
+                        ageInYears * C.GLOBAL_LITERACY_RATE_INCREASE_PER_YEAR,
+                    worldCups: Math.floor(ageInYears / 4),
+                    kidneyFilterLiters: Math.floor(
+                        diffDays * C.AVG_KIDNEY_FILTER_LITERS_PER_DAY,
+                    ),
+                    liverProcessLiters: Math.floor(
+                        diffDays * C.AVG_LIVER_PROCESS_LITERS_PER_DAY,
+                    ),
+                    brainWeightKg: C.AVG_BRAIN_WEIGHT_KG, // Constant
+                    neuronsInBrain: C.AVG_NEURONS_IN_BRAIN, // Constant
+                    hairFollicles: C.AVG_HAIR_FOLLICLES, // Constant
+                    sweatLiters: Math.floor(
+                        diffDays * C.AVG_SWEAT_LITERS_PER_DAY,
+                    ),
+                    stepsTaken: Math.floor(diffDays * C.AVG_STEPS_PER_DAY),
+                    screenTimeHours: Math.floor(
+                        ageInYears * 365 * C.AVG_SCREEN_TIME_HOURS_PER_DAY,
+                    ),
+                    socialMediaHours: Math.floor(
+                        ageInYears * 365 * C.AVG_SOCIAL_MEDIA_HOURS_PER_DAY,
+                    ),
+                    newsHours: Math.floor(
+                        ageInYears * 365 * C.AVG_NEWS_HOURS_PER_DAY,
+                    ),
+                    onlinePurchases: Math.floor(
+                        ageInYears * C.AVG_ONLINE_PURCHASES_PER_YEAR,
+                    ),
+                    appsDownloaded: Math.floor(
+                        ageInYears * C.AVG_APPS_DOWNLOADED_PER_YEAR,
+                    ),
+                    textMessages: Math.floor(
+                        diffDays * C.AVG_TEXT_MESSAGES_PER_DAY,
+                    ),
+                    emailsSent: Math.floor(
+                        diffDays * C.AVG_EMAILS_SENT_PER_DAY,
+                    ),
+                    videoCallHours: Math.floor(
+                        ageInYears * 52 * C.AVG_VIDEO_CALL_HOURS_PER_WEEK,
+                    ),
+                    internetUsersGrowth:
+                        (Math.pow(
+                            1 + C.GLOBAL_INTERNET_USERS_GROWTH_RATE,
+                            internetYears,
+                        ) -
+                            1) *
+                        100,
+                    smartphoneUsersGrowth:
+                        (Math.pow(
+                            1 + C.GLOBAL_SMARTPHONE_USERS_GROWTH_RATE,
+                            smartphoneYears,
+                        ) -
+                            1) *
+                        100,
+                    dataCreatedZb:
+                        ageInYears * C.GLOBAL_DATA_CREATED_ZB_PER_YEAR,
+                    renewableEnergyGrowth:
+                        (Math.pow(
+                            1 + C.GLOBAL_RENEWABLE_ENERGY_GROWTH_RATE,
+                            ageInYears,
+                        ) -
+                            1) *
+                        100,
+                    plasticProductionTons:
+                        ageInYears * C.GLOBAL_PLASTIC_PRODUCTION_TONS_PER_YEAR,
+                    globalTempRiseCelsius:
+                        (ageInYears / 10) *
+                        C.GLOBAL_TEMPERATURE_RISE_CELSIUS_PER_DECADE,
+                    oceanAcidificationPhChange:
+                        ageInYears *
+                        C.GLOBAL_OCEAN_ACIDIFICATION_PH_CHANGE_PER_YEAR,
+                    forestAreaLossPercent:
+                        ageInYears *
+                        C.GLOBAL_FOREST_AREA_PERCENT_CHANGE_PER_YEAR *
+                        100,
+                    biodiversityLossPercent:
+                        ageInYears *
+                        C.GLOBAL_BIODIVERSITY_LOSS_PERCENT_PER_YEAR *
+                        100,
+                    co2ConcentrationPpm:
+                        ageInYears * C.GLOBAL_CO2_CONCENTRATION_PPM_PER_YEAR,
+                    iceSheetLossGt:
+                        ageInYears * C.GLOBAL_ICE_SHEET_LOSS_GT_PER_YEAR,
+                    coralReefLossPercent:
+                        ageInYears *
+                        C.GLOBAL_CORAL_REEF_LOSS_PERCENT_PER_YEAR *
+                        100,
+                    airPollutionDeaths:
+                        ageInYears * C.GLOBAL_AIR_POLLUTION_DEATHS_PER_YEAR,
+                    waterScarcityAffected:
+                        ageInYears *
+                        C.GLOBAL_WATER_SCARCITY_PEOPLE_AFFECTED_BILLION,
+                    flightHours: ageInYears * C.AVG_FLIGHT_HOURS_PER_YEAR,
+                    vacationDays: ageInYears * C.AVG_VACATION_DAYS_PER_YEAR,
+                    giftsReceived: ageInYears * C.AVG_GIFTS_RECEIVED_PER_YEAR,
+                    petsOwned: Math.floor(
+                        ageInYears / (TOTAL_YEARS / C.AVG_PETS_OWNED_LIFETIME),
+                    ),
+                    houseMoves: Math.floor(
+                        ageInYears / (TOTAL_YEARS / C.AVG_HOUSE_MOVES_LIFETIME),
+                    ),
+                    haircuts: ageInYears * C.AVG_HAIRCUTS_PER_YEAR,
+                    nailsGrownMeters: ageInYears * C.AVG_NAILS_GROWN_METERS,
+                    kisses: diffDays * C.AVG_KISSES_PER_DAY,
+                    hugs: diffDays * C.AVG_HUGS_PER_DAY,
+                    compliments: diffDays * C.AVG_COMPLIMENTS_PER_DAY,
+                    arguments: diffDays * C.AVG_ARGUMENTS_PER_DAY,
+                    booksWritten: ageInYears * C.AVG_BOOKS_WRITTEN_LIFETIME,
+                    songsWritten: ageInYears * C.AVG_SONGS_WRITTEN_LIFETIME,
+                    paintingsCreated:
+                        ageInYears * C.AVG_PAINTINGS_CREATED_LIFETIME,
+                    volunteerHours: ageInYears * C.AVG_VOLUNTEER_HOURS_PER_YEAR,
+                    charityDonations:
+                        ageInYears * C.AVG_CHARITY_DONATIONS_USD_PER_YEAR,
+                    homeCookedMeals: diffDays * C.AVG_HOME_COOKED_MEALS_PER_DAY,
+                    restaurantMeals:
+                        Math.floor(diffDays / 7) *
+                        C.AVG_RESTAURANT_MEALS_PER_WEEK,
+                    fastFoodMeals:
+                        Math.floor(diffDays / 30) *
+                        C.AVG_FAST_FOOD_MEALS_PER_MONTH,
+                    timeCookingHours:
+                        diffDays * C.AVG_TIME_COOKING_HOURS_PER_DAY,
+                    timeCleaningHours:
+                        diffDays * C.AVG_TIME_CLEANING_HOURS_PER_DAY,
+                    timeCommutingHours:
+                        diffDays * C.AVG_TIME_COMMUTING_HOURS_PER_DAY,
+                    timeExercisingHours:
+                        diffDays * C.AVG_TIME_EXERCISING_HOURS_PER_DAY,
+                    timeReadingHours:
+                        diffDays * C.AVG_TIME_READING_HOURS_PER_DAY,
+                    timeGamingHours: diffDays * C.AVG_TIME_GAMING_HOURS_PER_DAY,
+                    timeSocializingHours:
+                        diffDays * C.AVG_TIME_SOCIALIZING_HOURS_PER_DAY,
+                    timeLearningHours:
+                        diffDays * C.AVG_TIME_LEARNING_HOURS_PER_DAY,
+                    timeMeditatingHours:
+                        (diffDays * C.AVG_TIME_MEDITATING_MINS_PER_DAY) / 60,
+                    timePlanningHours:
+                        (diffDays * C.AVG_TIME_PLANNING_MINS_PER_DAY) / 60,
+                    timeGroceryShoppingHours:
+                        Math.floor(diffDays / 7) *
+                        C.AVG_TIME_GROCERY_SHOPPING_HOURS_PER_WEEK,
+                    timeLaundryHours:
+                        Math.floor(diffDays / 7) *
+                        C.AVG_TIME_LAUNDRY_HOURS_PER_WEEK,
+                    timeBathingHours:
+                        (diffDays * C.AVG_TIME_BATHING_MINS_PER_DAY) / 60,
+                    timeDressingHours:
+                        (diffDays * C.AVG_TIME_DRESSING_MINS_PER_DAY) / 60,
+                    timeBrushingTeethHours:
+                        (diffDays * C.AVG_TIME_BRUSHING_TEETH_MINS_PER_DAY) /
+                        60,
+                    timeShavingHours:
+                        (diffDays * C.AVG_TIME_SHAVING_MINS_PER_DAY) / 60,
+                    timeGroomingHours:
+                        (diffDays * C.AVG_TIME_GROOMING_MINS_PER_DAY) / 60,
+                };
+                return stats;
+            }
+
+            // --- UI Rendering ---
+            function createStatCard(icon, value, label, color, tooltip) {
+                const displayValue =
+                    typeof value === "number"
+                        ? value.toLocaleString("en-US", {
+                              maximumFractionDigits: 1,
+                          })
+                        : value;
+                let fontSize = "1.125rem";
+                if (displayValue.length > 12) fontSize = "1rem";
+                if (displayValue.length > 16) fontSize = "0.875rem";
+
+                return `
+                <div class="stat-card">
+                    <div class="info-icon-container">
+                        <i class="ph ph-info info-icon" aria-label="Information about ${label}"></i>
+                        <span class="tooltip">${tooltip}</span>
+                    </div>
+                    <div>
+                        <div class="stat-value" style="font-size: ${fontSize}; color: ${color};">${displayValue}</div>
+                        <div class="stat-label">${label}</div>
+                    </div>
+                    <i class="main-icon ${icon}" style="color: ${color};" aria-hidden="true"></i>
+                </div>
+            `;
+            }
+
+            function displayStats(stats, birthDateObj) {
+                // Display the date using UTC values to avoid timezone shifts
+                document.getElementById("birthDateDisplay").textContent =
+                    birthDateObj.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        timeZone: "UTC", // Specify UTC timezone
+                    });
+
+                const C = STATS_CONFIG;
+                // Total: 100+ stats
+                const statData = [
+                    // Physiology & Biology (15 + 10 = 25)
+                    {
+                        category: "Physiology",
+                        icon: "ph-heartbeat",
+                        value: stats.heartbeats,
+                        label: "Heartbeats",
+                        color: "#ef4444",
+                        tooltip: `Based on an average of ${C.AVG_HEART_RATE_BPM} beats per minute.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-wind",
+                        value: stats.breaths,
+                        label: "Breaths Taken",
+                        color: "#34d399",
+                        tooltip: `Based on an average of ${C.AVG_BREATHS_PER_MINUTE} breaths per minute.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-drop-hemoglobin",
+                        value: stats.bloodPumpedLiters,
+                        label: "Liters of Blood Pumped",
+                        color: "#dc2626",
+                        tooltip: `Based on ${C.BLOOD_PUMPED_LITERS_PER_MINUTE} liters per minute.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-cell-signal-full",
+                        value: stats.redBloodCells,
+                        label: "Red Blood Cells Made",
+                        color: "#be123c",
+                        tooltip: `Based on an average of ${C.RED_BLOOD_CELLS_MADE_PER_SECOND.toLocaleString()} new cells per second.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-flower-lotus",
+                        value: stats.skinCellsShed,
+                        label: "Skin Cells Shed",
+                        color: "#4f46e5",
+                        tooltip: `Based on an average of ${C.SKIN_CELLS_SHED_PER_HOUR.toLocaleString()} cells per hour.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-bone",
+                        value: stats.skeletonReplacements,
+                        label: "Skeleton Replacements",
+                        color: "#7f1d1d",
+                        tooltip: `Your skeleton replaces itself roughly every ${C.SKELETON_REPLACE_YEARS} years.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-lightning",
+                        value: stats.nerveImpulseKm,
+                        label: "Nerve Impulse Km",
+                        color: "#facc15",
+                        tooltip: `Nerve impulses travel at up to ${C.NERVE_IMPULSE_SPEED_KPH} km/h.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-mouth",
+                        value: stats.salivaLiters,
+                        label: "Liters of Saliva",
+                        color: "#a21caf",
+                        tooltip: `Based on an average production of ${C.SALIVA_LITERS_PER_DAY} liters per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-fire",
+                        value: stats.caloriesBurnedRest,
+                        label: "Calories Burned at Rest",
+                        color: "#f97316",
+                        tooltip: `Based on an average Basal Metabolic Rate (BMR) of ${C.BMR_CALORIES_PER_DAY} calories/day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-ruler",
+                        value: stats.hairGrownMeters.toFixed(2) + "m",
+                        label: "Hair Grown",
+                        color: "#78716c",
+                        tooltip: `Based on ${C.HAIR_GROWN_CM_PER_MONTH} cm of growth per month.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-tongue",
+                        value: stats.tasteBudsReplaced,
+                        label: "Taste Buds Replaced",
+                        color: "#c2410c",
+                        tooltip: `Your ~10,000 taste buds are replaced every ${C.TASTE_BUDS_REPLACED_DAYS} days on average.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-eye",
+                        value: stats.blinks,
+                        label: "Blinks",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.AVG_BLINKS_PER_MINUTE} blinks per minute.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-bed",
+                        value: stats.sleepHours,
+                        label: "Hours Slept",
+                        color: "#6b7280",
+                        tooltip: `Based on an average of ${C.AVG_SLEEP_HOURS_PER_DAY} hours per night.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-cloud-moon",
+                        value: stats.dreams,
+                        label: "Dreams",
+                        color: "#a855f7",
+                        tooltip: `Based on an average of ${C.AVG_DREAMS_PER_NIGHT} dreams per night.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-leaf",
+                        value: stats.sneezes,
+                        label: "Sneezes",
+                        color: "#059669",
+                        tooltip: `Based on a conservative estimate of ${C.SNEEZES_PER_DAY} sneeze per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-kidney",
+                        value: stats.kidneyFilterLiters,
+                        label: "Liters Filtered by Kidneys",
+                        color: "#84cc16",
+                        tooltip: `Your kidneys filter about ${C.AVG_KIDNEY_FILTER_LITERS_PER_DAY} liters of blood per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-thermometer",
+                        value: stats.sweatLiters,
+                        label: "Liters of Sweat Produced",
+                        color: "#06b6d4",
+                        tooltip: `You produce about ${C.AVG_SWEAT_LITERS_PER_DAY} liter of sweat per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-brain",
+                        value: `${stats.brainWeightKg} kg`,
+                        label: "Brain Weight",
+                        color: "#9333ea",
+                        tooltip: `The average adult human brain weighs about ${C.AVG_BRAIN_WEIGHT_KG} kg.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-neuron",
+                        value: stats.neuronsInBrain.toExponential(0),
+                        label: "Neurons in Brain",
+                        color: "#4338ca",
+                        tooltip: `The average human brain has about ${C.AVG_NEURONS_IN_BRAIN.toExponential(0)} neurons.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-hair-dryer",
+                        value: stats.hairFollicles.toLocaleString(),
+                        label: "Hair Follicles",
+                        color: "#78716c",
+                        tooltip: `The average human head has about ${C.AVG_HAIR_FOLLICLES.toLocaleString()} hair follicles.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-hand",
+                        value: stats.nailsGrownMeters.toFixed(3) + "m",
+                        label: "Nails Grown",
+                        color: "#c2410c",
+                        tooltip: `Fingernails grow about ${C.AVG_NAILS_GROWN_METERS * 100} cm per year.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-heart",
+                        value: stats.kisses,
+                        label: "Kisses Given/Received",
+                        color: "#ef4444",
+                        tooltip: `Based on an average of ${C.AVG_KISSES_PER_DAY} kisses per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-hands-clapping",
+                        value: stats.hugs,
+                        label: "Hugs Given/Received",
+                        color: "#fb923c",
+                        tooltip: `Based on an average of ${C.AVG_HUGS_PER_DAY} hugs per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-face-smile",
+                        value: stats.compliments,
+                        label: "Compliments Given/Received",
+                        color: "#ec4899",
+                        tooltip: `Based on an average of ${C.AVG_COMPLIMENTS_PER_DAY} compliments per day.`,
+                    },
+                    {
+                        category: "Physiology",
+                        icon: "ph-chat-teardrop-text",
+                        value: stats.arguments,
+                        label: "Arguments Had",
+                        color: "#dc2626",
+                        tooltip: `Based on an average of ${C.AVG_ARGUMENTS_PER_DAY} arguments per day.`,
+                    },
+
+                    // Daily Life & Habits (15 + 10 = 25)
+                    {
+                        category: "Habits",
+                        icon: "ph-person-simple-walk",
+                        value: stats.kmWalked,
+                        label: "Kilometers Walked",
+                        color: "#f97316",
+                        tooltip: `Based on an average of ${C.AVG_WALK_KM_PER_DAY} km walked per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-drop",
+                        value: stats.waterLiters,
+                        label: "Liters of Water",
+                        color: "#3b82f6",
+                        tooltip: `Based on an average of ${C.AVG_WATER_LITERS_PER_DAY} liters consumed per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-fork-knife",
+                        value: stats.foodKg,
+                        label: "Kilograms of Food",
+                        color: "#ca8a04",
+                        tooltip: `Based on an average of ${C.AVG_FOOD_KG_PER_DAY} kg consumed per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-coffee",
+                        value: stats.coffeeCups,
+                        label: "Cups of Coffee",
+                        color: "#78350f",
+                        tooltip: `Based on a US national average of ${C.AVG_COFFEE_CUPS_PER_DAY} cups per day after age ${C.COFFEE_START_AGE}.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-car",
+                        value: stats.kmDriven,
+                        label: "Kilometers Driven",
+                        color: "#1e40af",
+                        tooltip: `Based on a US average of ${C.AVG_DRIVING_KM_PER_YEAR.toLocaleString()} km/year after age ${C.DRIVING_START_AGE}.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-smiley",
+                        value: stats.laughs,
+                        label: "Laughs",
+                        color: "#ec4899",
+                        tooltip: `Based on an average of ${C.AVG_LAUGHS_PER_DAY} laughs per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-chat-circle-dots",
+                        value: stats.wordsSpoken,
+                        label: "Words Spoken",
+                        color: "#06b6d4",
+                        tooltip: `Based on an average of ${C.AVG_WORDS_SPOKEN_PER_DAY.toLocaleString()} words per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-timer",
+                        value: stats.timeEatingHours.toFixed(0),
+                        label: "Hours Eating",
+                        color: "#eab308",
+                        tooltip: `Based on an average of ${C.AVG_TIME_EATING_MINS_PER_DAY} minutes spent eating per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-brain",
+                        value: stats.thoughts,
+                        label: "Thoughts",
+                        color: "#9333ea",
+                        tooltip: `Based on an estimated ${C.AVG_THOUGHTS_PER_DAY.toLocaleString()} thoughts per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-path",
+                        value: stats.decisions,
+                        label: "Decisions Made",
+                        color: "#4338ca",
+                        tooltip: `Based on an estimated ${C.AVG_DECISIONS_PER_DAY.toLocaleString()} conscious decisions per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-smiley-wink",
+                        value: stats.tearsMl,
+                        label: "Milliliters of Tears",
+                        color: "#2563eb",
+                        tooltip: `Based on an average of 2 cries per month, each producing ${C.TEARS_ML_PER_CRY}ml.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-books",
+                        value: stats.booksToRead,
+                        label: "Books to Read (to 90)",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.BOOKS_READ_PER_YEAR} books per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-sun-horizon",
+                        value: stats.sunrisesLeft,
+                        label: "Sunrises Left (to 90)",
+                        color: "#f59e0b",
+                        tooltip: `An estimate of remaining sunrises until age 90.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-calendar-blank",
+                        value: stats.weekendsLeft,
+                        label: "Weekends Left (to 90)",
+                        color: "#374151",
+                        tooltip: `An estimate of remaining weekends until age 90.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-film-strip",
+                        value: stats.moviesWatched,
+                        label: "Movies Watched",
+                        color: "#312e81",
+                        tooltip: `Based on an average of ${C.MOVIES_WATCHED_PER_YEAR} movies per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-footprints",
+                        value: stats.stepsTaken,
+                        label: "Steps Taken",
+                        color: "#f97316",
+                        tooltip: `Based on an average of ${C.AVG_STEPS_PER_DAY.toLocaleString()} steps per day.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-airplane",
+                        value: stats.flightHours,
+                        label: "Hours Flown",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.AVG_FLIGHT_HOURS_PER_YEAR} flight hours per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-suitcase",
+                        value: stats.vacationDays,
+                        label: "Vacation Days Taken",
+                        color: "#15803d",
+                        tooltip: `Based on an average of ${C.AVG_VACATION_DAYS_PER_YEAR} vacation days per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-gift",
+                        value: stats.giftsReceived,
+                        label: "Gifts Received",
+                        color: "#be185d",
+                        tooltip: `Based on an average of ${C.AVG_GIFTS_RECEIVED_PER_YEAR} gifts received per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-paw-print",
+                        value: stats.petsOwned.toFixed(0),
+                        label: "Pets Owned",
+                        color: "#78716c",
+                        tooltip: `Based on an average of ${C.AVG_PETS_OWNED_LIFETIME} pets owned in a lifetime.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-house",
+                        value: stats.houseMoves.toFixed(0),
+                        label: "House Moves",
+                        color: "#4b5563",
+                        tooltip: `Based on an average of ${C.AVG_HOUSE_MOVES_LIFETIME} house moves in a lifetime.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-scissors",
+                        value: stats.haircuts,
+                        label: "Haircuts",
+                        color: "#111827",
+                        tooltip: `Based on an average of ${C.AVG_HAIRCUTS_PER_YEAR} haircuts per year.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-book-bookmark",
+                        value: stats.booksWritten.toFixed(2),
+                        label: "Books Written",
+                        color: "#0ea5e9",
+                        tooltip: `Estimated books written in a lifetime, based on average.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-music-notes-simple",
+                        value: stats.songsWritten.toFixed(2),
+                        label: "Songs Written",
+                        color: "#be185d",
+                        tooltip: `Estimated songs written in a lifetime, based on average.`,
+                    },
+                    {
+                        category: "Habits",
+                        icon: "ph-palette",
+                        value: stats.paintingsCreated.toFixed(2),
+                        label: "Paintings Created",
+                        color: "#a21caf",
+                        tooltip: `Estimated paintings created in a lifetime, based on average.`,
+                    },
+
+                    // Societal & Economic (15 + 5 = 20)
+                    {
+                        category: "Society",
+                        icon: "ph-users",
+                        value: Math.floor(
+                            (stats.kmWalked /
+                                (C.AVG_WALK_KM_PER_DAY * 365) /
+                                80) *
+                                C.AVG_PEOPLE_MET_LIFETIME,
+                        ).toLocaleString(),
+                        label: "People Met",
+                        color: "#8b5cf6",
+                        tooltip: `An average person meets ~${C.AVG_PEOPLE_MET_LIFETIME.toLocaleString()} people in their lifetime.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-money",
+                        value: stats.incomeEarned.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                        }),
+                        label: "Pre-Tax Income (USD)",
+                        color: "#16a34a",
+                        tooltip: `Based on a US national average income of $${C.AVG_INCOME_PER_YEAR_US.toLocaleString()}/year after age ${C.WORK_START_AGE}.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-bank",
+                        value: stats.taxesPaid.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                        }),
+                        label: "Taxes Paid (USD)",
+                        color: "#b91c1c",
+                        tooltip: `Based on a ~${C.AVG_TAX_RATE_LIFETIME_US * 100}% lifetime average tax rate on income.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-briefcase",
+                        value: stats.workHours,
+                        label: "Hours Worked",
+                        color: "#374151",
+                        tooltip: `Based on ${C.AVG_WORK_HOURS_PER_WEEK} hours/week, 50 weeks/year after age ${C.WORK_START_AGE}.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-hands-clapping",
+                        value: stats.handshakes,
+                        label: "Handshakes",
+                        color: "#fb923c",
+                        tooltip: `Based on an estimated ${C.AVG_HANDSHAKES_LIFETIME.toLocaleString()} handshakes in a lifetime.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-text-aa",
+                        value: Math.floor(stats.wordsAddedToDict),
+                        label: "New English Words",
+                        color: "#1e293b",
+                        tooltip: `An estimated ${C.NEW_WORDS_PER_YEAR} words are added to the dictionary each year.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-lightbulb",
+                        value: stats.patentsFiledGlobal,
+                        label: "Global Patents Filed",
+                        color: "#f59e0b",
+                        tooltip: `Based on ${C.PATENTS_FILED_PER_YEAR_GLOBAL.toLocaleString()} patents filed globally per year.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-chart-line-up",
+                        value: `~${(Math.pow(1 + C.GLOBAL_GDP_GROWTH_RATE, stats.kmWalked / (C.AVG_WALK_KM_PER_DAY * 365)) * 100 - 100).toFixed(0)}%`,
+                        label: "Global GDP Growth",
+                        color: "#15803d",
+                        tooltip: `Cumulative world GDP growth during your lifetime at an average of ${C.GLOBAL_GDP_GROWTH_RATE * 100}% per year.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-users-three",
+                        value: stats.worldPopulationGrowth.toLocaleString(),
+                        label: "World Population Growth",
+                        color: "#047857",
+                        tooltip: `The increase in human population during your lifetime.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-graduation-cap",
+                        value: `${stats.literacyIncrease.toFixed(1)}%`,
+                        label: "Global Literacy Rise",
+                        color: "#1e3a8a",
+                        tooltip: `The estimated increase in the global literacy rate during your lifetime.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-medal",
+                        value: stats.olympics,
+                        label: "Olympic Games",
+                        color: "#facc15",
+                        tooltip: `Summer and Winter games occur every 2 years.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-flag",
+                        value: stats.presidentialElections,
+                        label: "US Elections Seen",
+                        color: "#1d4ed8",
+                        tooltip: `A presidential election occurs every 4 years.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-calendar-check",
+                        value: stats.leapYears,
+                        label: "Leap Years Lived",
+                        color: "#57534e",
+                        tooltip: `You've experienced this many extra days.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-calendar-plus",
+                        value: stats.daysLived,
+                        label: "Days on Earth",
+                        color: "#44403c",
+                        tooltip: `Total number of days since you were born.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-calendar",
+                        value: stats.weeksLived,
+                        label: "Weeks Lived",
+                        color: "#57534e",
+                        tooltip: `Total number of weeks since you were born.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-soccer-ball",
+                        value: stats.worldCups,
+                        label: "FIFA World Cups",
+                        color: "#000000",
+                        tooltip: `Number of FIFA World Cup tournaments held during your lifetime.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-hands-praying",
+                        value: stats.volunteerHours,
+                        label: "Volunteer Hours",
+                        color: "#34d399",
+                        tooltip: `Based on an average of ${C.AVG_VOLUNTEER_HOURS_PER_YEAR} volunteer hours per year.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-piggy-bank",
+                        value: stats.charityDonations.toLocaleString("en-US", {
+                            style: "currency",
+                            currency: "USD",
+                            maximumFractionDigits: 0,
+                        }),
+                        label: "Charity Donations (USD)",
+                        color: "#16a34a",
+                        tooltip: `Based on an average of $${C.AVG_CHARITY_DONATIONS_USD_PER_YEAR.toLocaleString()} donated to charity per year.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-bowl-food",
+                        value: stats.homeCookedMeals,
+                        label: "Home Cooked Meals",
+                        color: "#ca8a04",
+                        tooltip: `Based on an average of ${C.AVG_HOME_COOKED_MEALS_PER_DAY} home cooked meal per day.`,
+                    },
+                    {
+                        category: "Society",
+                        icon: "ph-storefront",
+                        value: stats.restaurantMeals,
+                        label: "Restaurant Meals",
+                        color: "#eab308",
+                        tooltip: `Based on an average of ${C.AVG_RESTAURANT_MEALS_PER_WEEK} restaurant meals per week.`,
+                    },
+
+                    // Technology & Media (15 + 10 = 25)
+                    {
+                        category: "Technology",
+                        icon: "ph-desktop",
+                        value: stats.hoursOnline,
+                        label: "Hours on Internet",
+                        color: "#2563eb",
+                        tooltip: `Based on a global average of ${C.HOURS_ONLINE_PER_DAY} hours per day since you were ${C.TECH_START_AGE} (or since ${C.LAUNCH_YEAR_INTERNET}).`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-at",
+                        value: stats.emailsExchanged,
+                        label: "Work Emails",
+                        color: "#9333ea",
+                        tooltip: `Based on ${C.EMAILS_PER_WORKDAY} emails per workday after age ${C.WORK_START_AGE}.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-camera",
+                        value: stats.photosTaken,
+                        label: "Photos Taken",
+                        color: "#db2777",
+                        tooltip: `Based on an average of ${C.PHOTOS_TAKEN_PER_DAY_POST_SMARTPHONE} photos/day since you were ${C.TECH_START_AGE} (or since ${C.LAUNCH_YEAR_SMARTPHONE}).`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-television",
+                        value: stats.tvHours,
+                        label: "Hours of TV",
+                        color: "#4338ca",
+                        tooltip: `Based on a US average of ${C.TV_HOURS_PER_DAY} hours per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-google-logo",
+                        value: stats.googleSearches,
+                        label: "Google Searches",
+                        color: "#4285F4",
+                        tooltip: `Based on an estimated ${C.GOOGLE_SEARCHES_PER_DAY} searches per day since you were ${C.TECH_START_AGE} (or since ${C.LAUNCH_YEAR_GOOGLE}).`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-wifi-high",
+                        value: stats.dataGb,
+                        label: "GB of Mobile Data",
+                        color: "#ea580c",
+                        tooltip: `Based on a global average of ${C.DATA_GB_PER_MONTH_MOBILE} GB per month since you were ${C.TECH_START_AGE} (or since ${C.LAUNCH_YEAR_SMARTPHONE}).`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-youtube-logo",
+                        value: stats.youtubeHoursUploaded,
+                        label: "Hours Uploaded to YouTube",
+                        color: "#FF0000",
+                        tooltip: `During your tech-aware lifetime, based on ${C.YOUTUBE_HOURS_UPLOADED_PER_MINUTE} hours uploaded per minute.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-spotify-logo",
+                        value: stats.spotifySongsAdded,
+                        label: "Songs Added to Spotify",
+                        color: "#1DB954",
+                        tooltip: `During your tech-aware lifetime, based on ${C.SPOTIFY_SONGS_ADDED_PER_DAY.toLocaleString()} songs added per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-wikipedia-logo",
+                        value: stats.wikipediaArticlesCreated,
+                        label: "Wikipedia Articles Created",
+                        color: "#000000",
+                        tooltip: `During your tech-aware lifetime, based on ${C.WIKIPEDIA_ARTICLES_CREATED_PER_DAY} English articles created per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-cpu",
+                        value: stats.mooreLawCycles.toFixed(1),
+                        label: "Moore's Law Cycles",
+                        color: "#111827",
+                        tooltip: `Number of times computing power has doubled (every ${C.MOORE_LAW_YEARS} years) in your lifetime.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-music-notes",
+                        value: stats.musicHours,
+                        label: "Hours of Music",
+                        color: "#be185d",
+                        tooltip: `Based on an average of ${C.MUSIC_HOURS_PER_DAY} hours per day since Spotify launched.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-planet",
+                        value: stats.exoplanetsDiscovered,
+                        label: "Exoplanets Discovered",
+                        color: "#047857",
+                        tooltip: `Number of exoplanets confirmed during your lifetime since the first in 1992.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-rocket-launch",
+                        value: `${stats.voyagerDistPercent.toFixed(2)}%`,
+                        label: "Of Voyager 1's Journey",
+                        color: "#1e40af",
+                        tooltip: `Your age as a percentage of the time since Voyager 1 was launched in ${C.LAUNCH_YEAR_VOYAGER}.`,
+                    },
+                    {
+                        icon: "ph-star-four",
+                        value: stats.starsBornGalaxy,
+                        label: "Stars Born in Milky Way",
+                        color: "#fde047",
+                        tooltip: `Based on an estimate of ${C.STARS_BORN_PER_YEAR_GALAXY} new stars per year in our galaxy.`,
+                    },
+                    {
+                        icon: "ph-sun",
+                        value: `${stats.ageAsPercentOfSun.toExponential(2)}%`,
+                        label: "Of the Sun's Age",
+                        color: "#f59e0b",
+                        tooltip: `The Sun is about ${C.SUN_AGE_YEARS.toExponential(1)} years old.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-device-mobile",
+                        value: stats.screenTimeHours,
+                        label: "Hours of Screen Time",
+                        color: "#4f46e5",
+                        tooltip: `Based on an average of ${C.AVG_SCREEN_TIME_HOURS_PER_DAY} hours of screen time per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-users-four",
+                        value: stats.socialMediaHours,
+                        label: "Hours on Social Media",
+                        color: "#db2777",
+                        tooltip: `Based on an average of ${C.AVG_SOCIAL_MEDIA_HOURS_PER_DAY} hours on social media per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-newspaper",
+                        value: stats.newsHours,
+                        label: "Hours Consuming News",
+                        color: "#374151",
+                        tooltip: `Based on an average of ${C.AVG_NEWS_HOURS_PER_DAY} hours consuming news per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-shopping-cart",
+                        value: stats.onlinePurchases,
+                        label: "Online Purchases",
+                        color: "#ea580c",
+                        tooltip: `Based on an average of ${C.AVG_ONLINE_PURCHASES_PER_YEAR} online purchases per year.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-app-store-logo",
+                        value: stats.appsDownloaded,
+                        label: "Apps Downloaded",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.AVG_APPS_DOWNLOADED_PER_YEAR} apps downloaded per year.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-chat-text",
+                        value: stats.textMessages,
+                        label: "Text Messages Sent",
+                        color: "#06b6d4",
+                        tooltip: `Based on an average of ${C.AVG_TEXT_MESSAGES_PER_DAY} text messages sent per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-envelope-simple",
+                        value: stats.emailsSent,
+                        label: "Emails Sent",
+                        color: "#9333ea",
+                        tooltip: `Based on an average of ${C.AVG_EMAILS_SENT_PER_DAY} emails sent per day.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-video-camera",
+                        value: stats.videoCallHours,
+                        label: "Video Call Hours",
+                        color: "#be185d",
+                        tooltip: `Based on an average of ${C.AVG_VIDEO_CALL_HOURS_PER_WEEK} video call hours per week.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-globe",
+                        value: `${stats.internetUsersGrowth.toFixed(1)}%`,
+                        label: "Internet User Growth",
+                        color: "#2563eb",
+                        tooltip: `Global internet user growth during your tech-aware lifetime.`,
+                    },
+                    {
+                        category: "Technology",
+                        icon: "ph-phone",
+                        value: `${stats.smartphoneUsersGrowth.toFixed(1)}%`,
+                        label: "Smartphone User Growth",
+                        color: "#4f46e5",
+                        tooltip: `Global smartphone user growth during your tech-aware lifetime.`,
+                    },
+
+                    // Environmental Impact (10 + 5 = 15)
+                    {
+                        category: "Environment",
+                        icon: "ph-factory",
+                        value: `${stats.co2FootprintTons.toFixed(1)}`,
+                        label: "Tons of CO₂ Emitted",
+                        color: "#65a30d",
+                        tooltip: `Based on a US per capita average of ${C.CO2_TONS_PER_YEAR_US} tons/year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-tree",
+                        value: `${stats.paperTrees.toFixed(1)}`,
+                        label: "Your Paper Use (in Trees)",
+                        color: "#16a34a",
+                        tooltip: `Based on a US average consumption equivalent to ${C.TREES_FOR_PAPER_PER_YEAR_US} trees/year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-trash",
+                        value: stats.wasteKg,
+                        label: "Kilograms of Waste",
+                        color: "#4b5563",
+                        tooltip: `Based on a US average of ${C.WASTE_KG_PER_DAY_US} kg of waste generated per day.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-shower",
+                        value: stats.waterFootprintLiters,
+                        label: "Water Footprint (Liters)",
+                        color: "#06b6d4",
+                        tooltip: `Based on a US average of ${C.WATER_FOOTPRINT_LITERS_PER_DAY_US.toLocaleString()} liters/day, including 'virtual' water for food/products.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-plastic-bag",
+                        value: stats.plasticBottlesUsed,
+                        label: "Plastic Bottles Used",
+                        color: "#0369a1",
+                        tooltip: `Based on a US average of ${C.PLASTIC_BOTTLES_PER_YEAR_US} bottles per year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-waves",
+                        value: `${stats.seaLevelRiseMm.toFixed(1)}mm`,
+                        label: "Global Sea Level Rise",
+                        color: "#0ea5e9",
+                        tooltip: `During your lifetime, based on a rise of ${C.SEA_LEVEL_RISE_MM_PER_YEAR}mm/year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-mountains",
+                        value: stats.glacierMassLostGt,
+                        label: "Gigatons of Glacier Ice Lost",
+                        color: "#64748b",
+                        tooltip: `During your lifetime, based on a loss of ${C.GLACIER_MASS_LOST_GT_PER_YEAR} gigatons/year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-pulse",
+                        value: stats.earthquakesMag5,
+                        label: "Major Earthquakes",
+                        color: "#9a3412",
+                        tooltip: `Number of magnitude 5.0+ earthquakes globally during your lifetime.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-tree-evergreen",
+                        value: stats.deforestationHectares,
+                        label: "Hectares of Forest Lost",
+                        color: "#9a3412",
+                        tooltip: `Global forest loss during your lifetime, at ${C.DEFORESTATION_HECTARES_PER_YEAR.toLocaleString()} hectares/year.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-butterfly",
+                        value: `~${C.SPECIES_EXTINCTION_RATE_VS_BASELINE}x`,
+                        label: "Extinction Rate Increase",
+                        color: "#7e22ce",
+                        tooltip: `The current extinction rate is estimated to be 100-1000x higher than the natural baseline rate.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-leaf-bold",
+                        value: `${stats.renewableEnergyGrowth.toFixed(1)}%`,
+                        label: "Renewable Energy Growth",
+                        color: "#15803d",
+                        tooltip: `Global renewable energy capacity growth during your lifetime.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-flask",
+                        value: stats.plasticProductionTons.toLocaleString(),
+                        label: "Tons of Plastic Produced",
+                        color: "#0369a1",
+                        tooltip: `Global plastic production during your lifetime.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-thermometer-simple",
+                        value: `${stats.globalTempRiseCelsius.toFixed(2)}°C`,
+                        label: "Global Temp Rise",
+                        color: "#dc2626",
+                        tooltip: `Global average temperature rise during your lifetime.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-fish",
+                        value: `${stats.oceanAcidificationPhChange.toFixed(3)} pH`,
+                        label: "Ocean Acidification",
+                        color: "#3b82f6",
+                        tooltip: `Change in ocean pH due to acidification during your lifetime.`,
+                    },
+                    {
+                        category: "Environment",
+                        icon: "ph-tree-palm",
+                        value: `${stats.forestAreaLossPercent.toFixed(2)}%`,
+                        label: "Forest Area Lost",
+                        color: "#9a3412",
+                        tooltip: `Percentage of global forest area lost during your lifetime.`,
+                    },
+
+                    // Cosmic & Geological (5 + 5 = 10)
+                    {
+                        category: "Cosmic",
+                        icon: "ph-globe-hemisphere-west",
+                        value: stats.earthTravelKm,
+                        label: "Km in Earth's Orbit",
+                        color: "#0891b2",
+                        tooltip: `Earth travels at ${C.EARTH_ORBITAL_SPEED_KPS.toLocaleString()} km/s around the Sun.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-spiral",
+                        value: stats.solarSystemTravelKm,
+                        label: "Km in Milky Way",
+                        color: "#c026d3",
+                        tooltip: `Our solar system travels at ${C.SOLAR_SYSTEM_SPEED_KPH.toLocaleString()} km/h.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-compass",
+                        value: `${stats.tectonicShiftCm.toFixed(1)}cm`,
+                        label: "Continents Drifted",
+                        color: "#d97706",
+                        tooltip: `Continents drift at an average of ${C.TECTONIC_SHIFT_CM_PER_YEAR} cm/year.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-moon",
+                        value: `${stats.kmWalkedToMoon.toFixed(2)}%`,
+                        label: "Of a walk to the Moon",
+                        color: "#64748b",
+                        tooltip: `Your total distance walked as a percentage of the ${C.DISTANCE_TO_MOON_KM.toLocaleString()} km to the Moon.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-shooting-star",
+                        value: stats.milkyWayTravelKm,
+                        label: "Km Through the Universe",
+                        color: "#581c87",
+                        tooltip: `The Milky Way itself moves through the universe at ~${C.MILKY_WAY_TRAVEL_SPEED_KPS} km/s.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-galaxy",
+                        value: stats.dataCreatedZb.toFixed(1),
+                        label: "Zettabytes of Data Created",
+                        color: "#4f46e5",
+                        tooltip: `Estimated global data created during your lifetime.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-cloud-arrow-up",
+                        value: `${stats.co2ConcentrationPpm.toFixed(1)} ppm`,
+                        label: "CO2 Concentration Increase",
+                        color: "#65a30d",
+                        tooltip: `Increase in atmospheric CO2 concentration during your lifetime.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-ice-cream",
+                        value: stats.iceSheetLossGt,
+                        label: "Gigatons of Ice Sheet Lost",
+                        color: "#64748b",
+                        tooltip: `Global ice sheet mass loss during your lifetime.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-coral",
+                        value: `${stats.coralReefLossPercent.toFixed(2)}%`,
+                        label: "Coral Reef Area Lost",
+                        color: "#f97316",
+                        tooltip: `Percentage of global coral reef area lost during your lifetime.`,
+                    },
+                    {
+                        category: "Cosmic",
+                        icon: "ph-mask-happy",
+                        value: stats.airPollutionDeaths.toLocaleString(),
+                        label: "Air Pollution Deaths (Global)",
+                        color: "#4b5563",
+                        tooltip: `Estimated global deaths from air pollution during your lifetime.`,
+                    },
+
+                    // Time Management (15 + 5 = 20)
+                    {
+                        category: "Time Management",
+                        icon: "ph-hourglass",
+                        value: stats.timeCookingHours.toFixed(0),
+                        label: "Hours Cooking",
+                        color: "#ca8a04",
+                        tooltip: `Based on an average of ${C.AVG_TIME_COOKING_HOURS_PER_DAY} hours cooking per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-broom",
+                        value: stats.timeCleaningHours.toFixed(0),
+                        label: "Hours Cleaning",
+                        color: "#4b5563",
+                        tooltip: `Based on an average of ${C.AVG_TIME_CLEANING_HOURS_PER_DAY} hours cleaning per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-bus",
+                        value: stats.timeCommutingHours.toFixed(0),
+                        label: "Hours Commuting",
+                        color: "#1e40af",
+                        tooltip: `Based on an average of ${C.AVG_TIME_COMMUTING_HOURS_PER_DAY} hours commuting per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-barbell",
+                        value: stats.timeExercisingHours.toFixed(0),
+                        label: "Hours Exercising",
+                        color: "#15803d",
+                        tooltip: `Based on an average of ${C.AVG_TIME_EXERCISING_HOURS_PER_DAY} hours exercising per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-book-open",
+                        value: stats.timeReadingHours.toFixed(0),
+                        label: "Hours Reading",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.AVG_TIME_READING_HOURS_PER_DAY} hours reading per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-game-controller",
+                        value: stats.timeGamingHours.toFixed(0),
+                        label: "Hours Gaming",
+                        color: "#312e81",
+                        tooltip: `Based on an average of ${C.AVG_TIME_GAMING_HOURS_PER_DAY} hours gaming per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-chats",
+                        value: stats.timeSocializingHours.toFixed(0),
+                        label: "Hours Socializing",
+                        color: "#8b5cf6",
+                        tooltip: `Based on an average of ${C.AVG_TIME_SOCIALIZING_HOURS_PER_DAY} hours socializing per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-lightbulb-filament",
+                        value: stats.timeLearningHours.toFixed(0),
+                        label: "Hours Learning",
+                        color: "#f59e0b",
+                        tooltip: `Based on an average of ${C.AVG_TIME_LEARNING_HOURS_PER_DAY} hours learning per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-lotus",
+                        value: stats.timeMeditatingHours.toFixed(0),
+                        label: "Hours Meditating",
+                        color: "#a855f7",
+                        tooltip: `Based on an average of ${C.AVG_TIME_MEDITATING_MINS_PER_DAY} minutes meditating per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-clipboard-text",
+                        value: stats.timePlanningHours.toFixed(0),
+                        label: "Hours Planning",
+                        color: "#9333ea",
+                        tooltip: `Based on an average of ${C.AVG_TIME_PLANNING_MINS_PER_DAY} minutes planning per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-shopping-bag",
+                        value: stats.timeGroceryShoppingHours.toFixed(0),
+                        label: "Hours Grocery Shopping",
+                        color: "#ea580c",
+                        tooltip: `Based on an average of ${C.AVG_TIME_GROCERY_SHOPPING_HOURS_PER_WEEK} hours grocery shopping per week.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-t-shirt",
+                        value: stats.timeLaundryHours.toFixed(0),
+                        label: "Hours Doing Laundry",
+                        color: "#57534e",
+                        tooltip: `Based on an average of ${C.AVG_TIME_LAUNDRY_HOURS_PER_WEEK} hours doing laundry per week.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-bathtub",
+                        value: stats.timeBathingHours.toFixed(0),
+                        label: "Hours Bathing",
+                        color: "#3b82f6",
+                        tooltip: `Based on an average of ${C.AVG_TIME_BATHING_MINS_PER_DAY} minutes bathing per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-hanger",
+                        value: stats.timeDressingHours.toFixed(0),
+                        label: "Hours Dressing",
+                        color: "#78716c",
+                        tooltip: `Based on an average of ${C.AVG_TIME_DRESSING_MINS_PER_DAY} minutes dressing per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-tooth",
+                        value: stats.timeBrushingTeethHours.toFixed(0),
+                        label: "Hours Brushing Teeth",
+                        color: "#0ea5e9",
+                        tooltip: `Based on an average of ${C.AVG_TIME_BRUSHING_TEETH_MINS_PER_DAY} minutes brushing teeth per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-barber-pole",
+                        value: stats.timeShavingHours.toFixed(0),
+                        label: "Hours Shaving",
+                        color: "#111827",
+                        tooltip: `Based on an average of ${C.AVG_TIME_SHAVING_MINS_PER_DAY} minutes shaving per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-sparkle",
+                        value: stats.timeGroomingHours.toFixed(0),
+                        label: "Hours Grooming",
+                        color: "#ec4899",
+                        tooltip: `Based on an average of ${C.AVG_TIME_GROOMING_MINS_PER_DAY} minutes grooming per day.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-hamburger",
+                        value: stats.fastFoodMeals,
+                        label: "Fast Food Meals",
+                        color: "#dc2626",
+                        tooltip: `Based on an average of ${C.AVG_FAST_FOOD_MEALS_PER_MONTH} fast food meals per month.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-chart-pie",
+                        value: `${stats.biodiversityLossPercent.toFixed(3)}%`,
+                        label: "Biodiversity Loss",
+                        color: "#7e22ce",
+                        tooltip: `Estimated percentage of global biodiversity lost during your lifetime.`,
+                    },
+                    {
+                        category: "Time Management",
+                        icon: "ph-water",
+                        value: stats.waterScarcityAffected.toFixed(1),
+                        label: "Billion People Affected by Water Scarcity",
+                        color: "#3b82f6",
+                        tooltip: `Estimated global population affected by water scarcity during your lifetime.`,
+                    },
+                ];
+
+                const dashboard = document.getElementById("stats-dashboard");
+                const cardsHTML = statData
+                    .map((data) =>
+                        createStatCard(
+                            data.icon,
+                            data.value,
+                            data.label,
+                            data.color,
+                            data.tooltip,
+                        ),
+                    )
+                    .join("");
+                dashboard.innerHTML = cardsHTML;
+            }
+            
+            // --- NEW: Function to copy stats to clipboard ---
+            function copyStatsToClipboard() {
+                const statCards = document.querySelectorAll('#stats-dashboard .stat-card');
+                if (statCards.length === 0) return;
+
+                const birthDateStr = document.getElementById('birthDateDisplay').textContent;
+                let textToCopy = `Your Life Stats (born ${birthDateStr}):\n\n`;
+
+                const allStats = [];
+                statCards.forEach(card => {
+                    const label = card.querySelector('.stat-label')?.textContent.trim();
+                    const value = card.querySelector('.stat-value')?.textContent.trim();
+                    if (label && value) {
+                        allStats.push({ label, value });
+                    }
+                });
+
+                // Sort alphabetically by label for a coherent, predictable output
+                allStats.sort((a, b) => a.label.localeCompare(b.label));
+
+                textToCopy += allStats.map(stat => `* ${stat.label}: ${stat.value}`).join('\n');
+
+                const canonicalLink = document.querySelector("link[rel='canonical']")?.href;
+                if (canonicalLink) {
+                    textToCopy += `\n\nGenerated on ${canonicalLink}`;
+                }
+
+                // Create a temporary textarea to hold the text and copy it
+                const textArea = document.createElement("textarea");
+                textArea.style.position = 'fixed';
+                textArea.style.top = '-9999px';
+                textArea.style.left = '-9999px';
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    // Visual feedback for success
+                    copyBtnText.textContent = 'Copied!';
+                    copyBtn.querySelector('i').className = 'ph ph-check';
+                    setTimeout(() => {
+                        copyBtnText.textContent = 'Copy Stats';
+                        copyBtn.querySelector('i').className = 'ph ph-copy';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy stats: ', err);
+                     // Visual feedback for failure
+                    copyBtnText.textContent = 'Failed!';
+                     setTimeout(() => {
+                        copyBtnText.textContent = 'Copy Stats';
+                        copyBtn.querySelector('i').className = 'ph ph-copy';
+                    }, 2000);
+                }
+                document.body.removeChild(textArea);
+            }
+
+
+            // --- Event Handlers & Initialization ---
+            function handleVisualize() {
+                const year = parseInt(birthYearInput.value, 10);
+                const month = parseInt(birthMonthInput.value, 10) - 1; // JS months are 0-indexed
+                const day = parseInt(birthDayInput.value, 10);
+
+                // --- FIX: Create date as UTC to avoid timezone issues ---
+                const birthDateObj = new Date(Date.UTC(year, month, day));
+
+                // Validate the date
+                if (
+                    isNaN(birthDateObj.getTime()) ||
+                    birthDateObj.getUTCDate() !== day
+                ) {
+                    errorMessage.textContent = "Please select a valid date.";
+                    return;
+                }
+
+                const now = new Date();
+                if (birthDateObj > now) {
+                    errorMessage.textContent =
+                        "Birth date cannot be in the future.";
+                    return;
+                }
+
+                errorMessage.textContent = "";
+
+                const stats = calculateStats(birthDateObj);
+
+                displayStats(stats, birthDateObj);
+                switchView(visualizationView, dateInputView);
+            }
+
+            function handleReset() {
+                switchView(dateInputView, visualizationView);
+                // We can clear the input after the transition starts
+                setTimeout(() => {
+                    errorMessage.textContent = "";
+                    // Reset dropdowns to their first option
+                    birthMonthInput.selectedIndex = 0;
+                    birthDayInput.selectedIndex = 0;
+                    birthYearInput.selectedIndex = 0;
+                }, 400);
+            }
+
+            function adjustTooltipPosition(infoContainer) {
+                const tooltip = infoContainer.querySelector(".tooltip");
+                if (!tooltip) return;
+
+                const rect = infoContainer.getBoundingClientRect();
+
+                // Reset to default to measure
+                tooltip.style.left = "50%";
+                tooltip.style.transform = "translateX(-50%)";
+
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                if (tooltipRect.left < 10) {
+                    // 10px buffer
+                    tooltip.style.left = "0";
+                    tooltip.style.transform = `translateX(${-rect.left + 10}px)`;
+                } else if (tooltipRect.right > window.innerWidth - 10) {
+                    tooltip.style.left = "auto";
+                    tooltip.style.right = "0";
+                    tooltip.style.transform = `translateX(${window.innerWidth - rect.right - 10}px)`;
+                }
+            }
+
+            visualizeBtn.addEventListener("click", handleVisualize);
+            resetBtn.addEventListener("click", handleReset);
+            copyBtn.addEventListener("click", copyStatsToClipboard); // NEW event listener
+
+            document
+                .getElementById("stats-dashboard")
+                .addEventListener("mouseover", (e) => {
+                    const infoContainer = e.target.closest(
+                        ".info-icon-container",
+                    );
+                    if (infoContainer) {
+                        adjustTooltipPosition(infoContainer);
+                    }
+                });
+
+            // --- Initialize the app ---
+            populateDateInputs();
+        </script>
+    </body>
+</html>
